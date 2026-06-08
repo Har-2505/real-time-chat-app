@@ -82,6 +82,7 @@ function ChatRoom() {
 
   return (
     <div className="chat-container">
+
       <div className="users-panel">
         <h3>Online Users</h3>
 
@@ -91,42 +92,68 @@ function ChatRoom() {
       </div>
 
       <div className="chat-panel">
-        <div className="chat-header">{roomName}</div>
 
-        <div className="messages">
-          {messages.map((msg, index) => (
-           <div
-  className={
-    msg.username === user.username
-      ? "message my-message"
-      : "message other-message"
-  }
-  key={index}
->
-              <strong>{msg.username}</strong>
-
-             <p>
-  {msg.message || msg.content}
-</p>
-
-<div className="message-time">
-  {msg.createdAt
-    ? new Date(msg.createdAt).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : ""}
-</div>
-            </div>
-          ))}
-
-          {/* Auto Scroll Target */}
-          <div ref={messagesEndRef}></div>
+        <div className="chat-header">
+          {roomName}
         </div>
 
-        <div className="typing">{typing}</div>
+        <div className="messages">
+
+          {messages.map((msg, index) => {
+
+            // System Messages
+            if (msg.system) {
+              return (
+                <div
+                  key={index}
+                  className="system-message"
+                >
+                  {msg.message}
+                </div>
+              );
+            }
+
+            return (
+              <div
+                className={
+                  msg.username === user.username
+                    ? "message my-message"
+                    : "message other-message"
+                }
+                key={index}
+              >
+                <strong>
+                  {msg.username}
+                </strong>
+
+                <p>
+                  {msg.message || msg.content}
+                </p>
+
+                <div className="message-time">
+                  {msg.createdAt
+                    ? new Date(
+                        msg.createdAt
+                      ).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : ""}
+                </div>
+              </div>
+            );
+          })}
+
+          <div ref={messagesEndRef}></div>
+
+        </div>
+
+        <div className="typing">
+          {typing}
+        </div>
 
         <div className="input-box">
+
           <input
             value={message}
             onChange={(e) => {
@@ -136,9 +163,14 @@ function ChatRoom() {
             placeholder="Type a message..."
           />
 
-          <button onClick={sendMessage}>Send</button>
+          <button onClick={sendMessage}>
+            Send
+          </button>
+
         </div>
+
       </div>
+
     </div>
   );
 }
