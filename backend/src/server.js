@@ -6,6 +6,7 @@ const { Server } = require("socket.io");
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const chatSocket = require("./sockets/chatSocket");
+const messageRoutes = require("./routes/messageRoutes");
 dotenv.config();
 
 const connectDB = require("./config/db");
@@ -28,6 +29,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
+app.use("/api/messages", messageRoutes);
 app.get("/", (req, res) => {
   res.send("Chat API Running...");
 });
