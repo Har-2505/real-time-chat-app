@@ -21,8 +21,7 @@ function Login() {
         "user",
         JSON.stringify(res.data.user)
       );
-
-      alert("Login Successful");
+window.location.href = "/rooms";
     } catch (error) {
       alert(error.response?.data?.message);
     }
