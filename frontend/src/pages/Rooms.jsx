@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import "../styles/rooms.css";
 
 function Rooms() {
   const [rooms, setRooms] = useState([]);
@@ -8,67 +9,95 @@ function Rooms() {
 
   const navigate = useNavigate();
 
+  const user = JSON.parse(
+    localStorage.getItem("user")
+  );
+
   useEffect(() => {
     fetchRooms();
   }, []);
 
   const fetchRooms = async () => {
-    try {
-      const res = await API.get("/rooms");
-      setRooms(res.data);
-    } catch (error) {
-      console.log(error);
-    }
+    const res = await API.get("/rooms");
+    setRooms(res.data);
   };
 
   const createRoom = async () => {
     if (!roomName.trim()) return;
 
-    try {
-      await API.post("/rooms", {
-        name: roomName,
-      });
+    await API.post("/rooms", {
+      name: roomName,
+    });
 
-      setRoomName("");
+    setRoomName("");
+    fetchRooms();
+  };
 
-      fetchRooms();
-    } catch (error) {
-      console.log(error);
-    }
+  const logout = () => {
+    localStorage.clear();
+    navigate("/");
   };
 
   return (
-    <div style={{ padding: "30px" }}>
-      <h1>Chat Rooms</h1>
+    <div className="rooms-container">
 
-      <input
-        placeholder="Create Room"
-        value={roomName}
-        onChange={(e) => setRoomName(e.target.value)}
-      />
+      <div className="rooms-header">
+        <h1 className="rooms-title">
+          ChatSphere
+        </h1>
 
-      <button onClick={createRoom}>
-        Create
-      </button>
-
-      <hr />
-
-      {rooms.map((room) => (
-        <div
-          key={room._id}
-          style={{
-            cursor: "pointer",
-            margin: "10px 0",
-            padding: "10px",
-            border: "1px solid #ddd",
-          }}
-          onClick={() =>
-            navigate(`/chat/${room.name}`)
-          }
+        <button
+          className="room-btn"
+          onClick={logout}
         >
-          {room.name}
-        </div>
-      ))}
+          Logout
+        </button>
+      </div>
+
+      <div className="room-form">
+        <input
+          className="room-input"
+          placeholder="Create New Room"
+          value={roomName}
+          onChange={(e) =>
+            setRoomName(e.target.value)
+          }
+        />
+
+        <button
+          className="room-btn"
+          onClick={createRoom}
+        >
+          Create
+        </button>
+      </div>
+
+      <div className="rooms-grid">
+
+        {rooms.map((room) => (
+          <div
+            key={room._id}
+            className="room-card"
+            onClick={() =>
+              navigate(`/chat/${room.name}`)
+            }
+          >
+            <div className="room-name">
+              💬 {room.name}
+            </div>
+          </div>
+        ))}
+
+      </div>
+
+      <div className="user-box">
+        Logged in as:
+        <strong>
+          {" "}
+          {user?.username}
+        </strong>
+      </div>
+
     </div>
   );
 }
