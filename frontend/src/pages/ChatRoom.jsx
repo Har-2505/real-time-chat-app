@@ -105,7 +105,18 @@ function ChatRoom() {
 >
               <strong>{msg.username}</strong>
 
-              <p>{msg.message || msg.content}</p>
+             <p>
+  {msg.message || msg.content}
+</p>
+
+<div className="message-time">
+  {msg.createdAt
+    ? new Date(msg.createdAt).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : ""}
+</div>
             </div>
           ))}
 
