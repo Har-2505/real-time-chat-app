@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
+import "../styles/auth.css";
 
 function Register() {
   const navigate = useNavigate();
@@ -33,41 +34,51 @@ function Register() {
   };
 
   return (
-    <div>
-      <h2>Register</h2>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2 className="auth-title">
+          Create Account
+        </h2>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          onChange={handleChange}
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            className="auth-input"
+            type="text"
+            name="username"
+            placeholder="Username"
+            onChange={handleChange}
+          />
 
-        <br /><br />
+          <input
+            className="auth-input"
+            type="email"
+            name="email"
+            placeholder="Email"
+            onChange={handleChange}
+          />
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-        />
+          <input
+            className="auth-input"
+            type="password"
+            name="password"
+            placeholder="Password"
+            onChange={handleChange}
+          />
 
-        <br /><br />
+          <button
+            className="auth-btn"
+            type="submit"
+          >
+            Register
+          </button>
+        </form>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-        />
-
-        <br /><br />
-
-        <button type="submit">
-          Register
-        </button>
-      </form>
+        <div className="auth-link">
+          <Link to="/">
+            Already have an account?
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
