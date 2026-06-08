@@ -123,10 +123,13 @@ function ChatRoom() {
                 }
                 key={index}
               >
-                <strong>
-                  {msg.username}
-                </strong>
+             <div className="user-info">
+  <div className="avatar">
+    {msg.username?.charAt(0).toUpperCase()}
+  </div>
 
+  <strong>{msg.username}</strong>
+</div>
                 <p>
                   {msg.message || msg.content}
                 </p>
