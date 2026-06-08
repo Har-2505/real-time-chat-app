@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import socket from "../services/socket";
 import API from "../services/api";
@@ -7,14 +7,14 @@ import "./chat.css";
 function ChatRoom() {
   const { roomName } = useParams();
 
-  const user = JSON.parse(
-    localStorage.getItem("user")
-  );
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [typing, setTyping] = useState("");
+
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     socket.emit("joinRoom", {
@@ -45,10 +45,20 @@ function ChatRoom() {
     };
   }, []);
 
-  const loadHistory = async () => {
-    const res = await API.get("/messages");
+  // Auto Scroll
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages]);
 
-    setMessages(res.data);
+  const loadHistory = async () => {
+    try {
+      const res = await API.get("/messages");
+      setMessages(res.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const sendMessage = () => {
@@ -72,7 +82,6 @@ function ChatRoom() {
 
   return (
     <div className="chat-container">
-
       <div className="users-panel">
         <h3>Online Users</h3>
 
@@ -82,36 +91,24 @@ function ChatRoom() {
       </div>
 
       <div className="chat-panel">
-
-        <div className="chat-header">
-          {roomName}
-        </div>
+        <div className="chat-header">{roomName}</div>
 
         <div className="messages">
-
           {messages.map((msg, index) => (
-            <div
-              className="message"
-              key={index}
-            >
-              <strong>
-                {msg.username}
-              </strong>
+            <div className="message" key={index}>
+              <strong>{msg.username}</strong>
 
-              <p>
-                {msg.message || msg.content}
-              </p>
+              <p>{msg.message || msg.content}</p>
             </div>
           ))}
 
+          {/* Auto Scroll Target */}
+          <div ref={messagesEndRef}></div>
         </div>
 
-        <div className="typing">
-          {typing}
-        </div>
+        <div className="typing">{typing}</div>
 
         <div className="input-box">
-
           <input
             value={message}
             onChange={(e) => {
@@ -121,14 +118,9 @@ function ChatRoom() {
             placeholder="Type a message..."
           />
 
-          <button onClick={sendMessage}>
-            Send
-          </button>
-
+          <button onClick={sendMessage}>Send</button>
         </div>
-
       </div>
-
     </div>
   );
 }
