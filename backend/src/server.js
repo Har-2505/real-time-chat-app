@@ -5,6 +5,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./routes/roomRoutes");
+const chatSocket = require("./sockets/chatSocket");
 dotenv.config();
 
 const connectDB = require("./config/db");
@@ -18,7 +19,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"]
   }
 });
-
+chatSocket(io);
 connectDB().catch((error) => {
   console.error("Database startup error:", error.message);
 });
