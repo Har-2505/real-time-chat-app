@@ -66,3 +66,25 @@
   padding-left:20px;
   font-style:italic;
 }
+
+.my-message {
+  background: #4f46e5;
+  color: white;
+  margin-left: auto;
+  max-width: 60%;
+}
+
+.other-message {
+  background: white;
+  color: black;
+  margin-right: auto;
+  max-width: 60%;
+}
+
+.message {
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 15px;
+  width: fit-content;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
