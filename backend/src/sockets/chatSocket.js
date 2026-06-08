@@ -66,7 +66,7 @@ io.to(user.room).emit("chatMessage", {
         const roomUsers = Object.values(users)
           .filter((u) => u.room === user.room)
           .map((u) => u.username);
-
+        console.log(`${user.username} left room`);
         io.to(user.room).emit("onlineUsers", roomUsers);
       }
 
