@@ -1,4 +1,6 @@
-router.get("/:room", async (req, res) => {
+const Message = require("../models/Message");
+
+const getMessages = async (req, res) => {
   try {
     const messages = await Message.find({
       room: req.params.room,
@@ -6,6 +8,12 @@ router.get("/:room", async (req, res) => {
 
     res.json(messages);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
-});
+};
+
+module.exports = {
+  getMessages,
+};
