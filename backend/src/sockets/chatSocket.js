@@ -25,21 +25,20 @@ const chatSocket = (io) => {
     });
 
     // Send Message
-    socket.on("chatMessage", async ({ username, room, message }) => {
-      try {
-        await Message.create({
-          content: message,
-        });
-
-        io.to(room).emit("chatMessage", {
-          username,
-          message,
-          createdAt: new Date(),
-        });
-      } catch (error) {
-        console.log(error);
-      }
+  socket.on("chatMessage", async ({ username, room, message }) => {
+  try {
+    const savedMessage = await Message.create({
+      username,
+      room,
+      content: message,
     });
+
+    io.to(room).emit("chatMessage", savedMessage);
+
+  } catch (error) {
+    console.log(error);
+  }
+});
 
     // Typing
     socket.on("typing", ({ username, room }) => {
