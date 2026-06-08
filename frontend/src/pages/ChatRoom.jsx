@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import socket from "../services/socket";
 import API from "../services/api";
@@ -7,7 +7,7 @@ import "./chat.css";
 function ChatRoom() {
   const { roomName } = useParams();
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -16,35 +16,50 @@ function ChatRoom() {
 
   const messagesEndRef = useRef(null);
 
-  useEffect(() => {
-    socket.emit("joinRoom", {
-      username: user.username,
-      room: roomName,
-    });
-
-    loadHistory();
-
-    socket.on("chatMessage", (msg) => {
-      console.log("Received Message:", msg);
-      setMessages((prev) => [...prev, msg]);
-    });
-
-    socket.on("onlineUsers", (users) => {
-      setOnlineUsers(users);
-    });
-
-    socket.on("typing", (data) => {
-      setTyping(data);
-
-      setTimeout(() => {
-        setTyping("");
-      }, 1500);
-    });
-
-    return () => {
-      socket.off();
-    };
+  const loadHistory = useCallback(async () => {
+    try {
+      const res = await API.get("/messages");
+      setMessages(res.data);
+    } catch (error) {
+      console.log(error);
+    }
   }, []);
+
+  useEffect(() => {
+  socket.emit("joinRoom", {
+    username: user.username,
+    room: roomName,
+  });
+
+  loadHistory();
+
+  const handleMessage = (msg) => {
+    console.log("Received Message:", msg);
+    setMessages((prev) => [...prev, msg]);
+  };
+
+  const handleUsers = (users) => {
+    setOnlineUsers(users);
+  };
+
+  const handleTyping = (data) => {
+    setTyping(data);
+
+    setTimeout(() => {
+      setTyping("");
+    }, 1500);
+  };
+
+  socket.on("chatMessage", handleMessage);
+  socket.on("onlineUsers", handleUsers);
+  socket.on("typing", handleTyping);
+
+  return () => {
+    socket.off("chatMessage", handleMessage);
+    socket.off("onlineUsers", handleUsers);
+    socket.off("typing", handleTyping);
+  };
+}, [loadHistory, roomName, user.username]);
 
   // Auto Scroll
   useEffect(() => {
@@ -52,15 +67,6 @@ function ChatRoom() {
       behavior: "smooth",
     });
   }, [messages]);
-
-  const loadHistory = async () => {
-    try {
-      const res = await API.get("/messages");
-      setMessages(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const sendMessage = () => {
     if (!message.trim()) return;
