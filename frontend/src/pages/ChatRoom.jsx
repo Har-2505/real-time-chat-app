@@ -25,6 +25,7 @@ function ChatRoom() {
     loadHistory();
 
     socket.on("chatMessage", (msg) => {
+      console.log("Received Message:", msg);
       setMessages((prev) => [...prev, msg]);
     });
 
