@@ -22,6 +22,11 @@ const chatSocket = (io) => {
       io.to(room).emit("onlineUsers", roomUsers);
 
       console.log(`${username} joined ${room}`);
+      socket.to(room).emit("chatMessage", {
+  system: true,
+  message: `${username} joined the room`,
+  createdAt: new Date(),
+});
     });
 
     // Send Message
@@ -50,6 +55,12 @@ const chatSocket = (io) => {
       const user = users[socket.id];
 
       if (user) {
+io.to(user.room).emit("chatMessage", {
+  system: true,
+  message: `${user.username} left the room`,
+  createdAt: new Date(),
+});
+
         delete users[socket.id];
 
         const roomUsers = Object.values(users)
