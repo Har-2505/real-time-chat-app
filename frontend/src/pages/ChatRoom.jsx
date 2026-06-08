@@ -7,7 +7,9 @@ import "./chat.css";
 function ChatRoom() {
   const { roomName } = useParams();
 
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const user = JSON.parse(
+    localStorage.getItem("user") || "{}"
+  );
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -16,50 +18,76 @@ function ChatRoom() {
 
   const messagesEndRef = useRef(null);
 
+  // Load Room History
   const loadHistory = useCallback(async () => {
     try {
-      const res = await API.get("/messages");
+      const res = await API.get(
+        `/messages/${roomName}`
+      );
+
+      console.log(
+        "History Loaded:",
+        res.data
+      );
+
       setMessages(res.data);
     } catch (error) {
       console.log(error);
     }
-  }, []);
+  }, [roomName]);
 
   useEffect(() => {
-  socket.emit("joinRoom", {
-    username: user.username,
-    room: roomName,
-  });
+    socket.emit("joinRoom", {
+      username: user.username,
+      room: roomName,
+    });
 
-  loadHistory();
+    loadHistory();
 
-  const handleMessage = (msg) => {
-    console.log("Received Message:", msg);
-    setMessages((prev) => [...prev, msg]);
-  };
+    const handleMessage = (msg) => {
+      console.log("Received Message:", msg);
 
-  const handleUsers = (users) => {
-    setOnlineUsers(users);
-  };
+      setMessages((prev) => [
+        ...prev,
+        msg,
+      ]);
+    };
 
-  const handleTyping = (data) => {
-    setTyping(data);
+    const handleUsers = (users) => {
+      setOnlineUsers(users);
+    };
 
-    setTimeout(() => {
-      setTyping("");
-    }, 1500);
-  };
+    const handleTyping = (data) => {
+      setTyping(data);
 
-  socket.on("chatMessage", handleMessage);
-  socket.on("onlineUsers", handleUsers);
-  socket.on("typing", handleTyping);
+      setTimeout(() => {
+        setTyping("");
+      }, 1500);
+    };
 
-  return () => {
-    socket.off("chatMessage", handleMessage);
-    socket.off("onlineUsers", handleUsers);
-    socket.off("typing", handleTyping);
-  };
-}, [loadHistory, roomName, user.username]);
+    socket.on("chatMessage", handleMessage);
+    socket.on("onlineUsers", handleUsers);
+    socket.on("typing", handleTyping);
+
+    return () => {
+      socket.off(
+        "chatMessage",
+        handleMessage
+      );
+      socket.off(
+        "onlineUsers",
+        handleUsers
+      );
+      socket.off(
+        "typing",
+        handleTyping
+      );
+    };
+  }, [
+    loadHistory,
+    roomName,
+    user.username,
+  ]);
 
   // Auto Scroll
   useEffect(() => {
@@ -89,73 +117,87 @@ function ChatRoom() {
 
   return (
     <div className="chat-container">
-
       <div className="users-panel">
         <h3>Online Users</h3>
 
-        {onlineUsers.map((u, index) => (
-          <p key={index}>🟢 {u}</p>
-        ))}
+        {onlineUsers.map(
+          (u, index) => (
+            <p key={index}>
+              🟢 {u}
+            </p>
+          )
+        )}
       </div>
 
       <div className="chat-panel">
-
         <div className="chat-header">
           {roomName}
         </div>
 
         <div className="messages">
+          {messages.map(
+            (msg, index) => {
+              // System Messages
+              if (msg.system) {
+                return (
+                  <div
+                    key={index}
+                    className="system-message"
+                  >
+                    {msg.message}
+                  </div>
+                );
+              }
 
-          {messages.map((msg, index) => {
-
-            // System Messages
-            if (msg.system) {
               return (
                 <div
                   key={index}
-                  className="system-message"
+                  className={
+                    msg.username ===
+                    user.username
+                      ? "message my-message"
+                      : "message other-message"
+                  }
                 >
-                  {msg.message}
+                  <div className="user-info">
+                    <div className="avatar">
+                      {msg.username
+                        ?.charAt(0)
+                        .toUpperCase()}
+                    </div>
+
+                    <strong>
+                      {msg.username}
+                    </strong>
+                  </div>
+
+                  <p>
+                    {msg.message ||
+                      msg.content}
+                  </p>
+
+                  <div className="message-time">
+                    {msg.createdAt
+                      ? new Date(
+                          msg.createdAt
+                        ).toLocaleTimeString(
+                          [],
+                          {
+                            hour: "2-digit",
+                            minute:
+                              "2-digit",
+                          }
+                        )
+                      : ""}
+                  </div>
                 </div>
               );
             }
+          )}
 
-            return (
-              <div
-                className={
-                  msg.username === user.username
-                    ? "message my-message"
-                    : "message other-message"
-                }
-                key={index}
-              >
-             <div className="user-info">
-  <div className="avatar">
-    {msg.username?.charAt(0).toUpperCase()}
-  </div>
-
-  <strong>{msg.username}</strong>
-</div>
-                <p>
-                  {msg.message || msg.content}
-                </p>
-
-                <div className="message-time">
-                  {msg.createdAt
-                    ? new Date(
-                        msg.createdAt
-                      ).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : ""}
-                </div>
-              </div>
-            );
-          })}
-
-          <div ref={messagesEndRef}></div>
-
+          <div
+            ref={messagesEndRef}
+          ></div>
         </div>
 
         <div className="typing">
@@ -163,24 +205,30 @@ function ChatRoom() {
         </div>
 
         <div className="input-box">
-
           <input
+            type="text"
             value={message}
+            placeholder="Type a message..."
             onChange={(e) => {
-              setMessage(e.target.value);
+              setMessage(
+                e.target.value
+              );
               handleTyping();
             }}
-            placeholder="Type a message..."
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                sendMessage();
+              }
+            }}
           />
 
-          <button onClick={sendMessage}>
+          <button
+            onClick={sendMessage}
+          >
             Send
           </button>
-
         </div>
-
       </div>
-
     </div>
   );
 }
