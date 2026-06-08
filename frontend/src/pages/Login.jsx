@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import API from "../services/api";
+import "../styles/auth.css";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -14,11 +16,7 @@ function Login() {
         password,
       });
 
-      localStorage.setItem(
-        "token",
-        res.data.token
-      );
-
+      localStorage.setItem("token", res.data.token);
       localStorage.setItem(
         "user",
         JSON.stringify(res.data.user)
@@ -31,34 +29,43 @@ function Login() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2 className="auth-title">ChatSphere Login</h2>
 
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          onChange={(e) =>
-            setEmail(e.target.value)
-          }
-        />
+        <form onSubmit={handleLogin}>
+          <input
+            className="auth-input"
+            type="email"
+            placeholder="Email"
+            onChange={(e) =>
+              setEmail(e.target.value)
+            }
+          />
 
-        <br /><br />
+          <input
+            className="auth-input"
+            type="password"
+            placeholder="Password"
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
-        />
+          <button
+            className="auth-btn"
+            type="submit"
+          >
+            Login
+          </button>
+        </form>
 
-        <br /><br />
-
-        <button type="submit">
-          Login
-        </button>
-      </form>
+        <div className="auth-link">
+          <Link to="/register">
+            Create Account
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
