@@ -95,7 +95,14 @@ function ChatRoom() {
 
         <div className="messages">
           {messages.map((msg, index) => (
-            <div className="message" key={index}>
+           <div
+  className={
+    msg.username === user.username
+      ? "message my-message"
+      : "message other-message"
+  }
+  key={index}
+>
               <strong>{msg.username}</strong>
 
               <p>{msg.message || msg.content}</p>
