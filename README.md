@@ -56,7 +56,7 @@ Backend .env
 
 PORT=5000
 
-MONGO_URI=mongodb://Harshit:kumar@ac-rrqfdk2-shard-00-00.c28dzal.mongodb.net:27017,ac-rrqfdk2-shard-00-01.c28dzal.mongodb.net:27017,ac-rrqfdk2-shard-00-02.c28dzal.mongodb.net:27017/chatapp?authSource=admin&replicaSet=atlas-ekjbu3-shard-0&tls=true&retryWrites=true&w=majority
+MONGO_URI=mongodb://Harshit:password@ac-rrqfdk2-shard-00-00.c28dzal.mongodb.net:27017,ac-rrqfdk2-shard-00-01.c28dzal.mongodb.net:27017,ac-rrqfdk2-shard-00-02.c28dzal.mongodb.net:27017/chatapp?authSource=admin&replicaSet=atlas-ekjbu3-shard-0&tls=true&retryWrites=true&w=majority
 
 JWT_SECRET=chatappsecretkey123mongodb+srv://Harshit:<db_password>@cluster0.c28dzal.mongodb.net/?appName=Cluster
 
